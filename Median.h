@@ -1,6 +1,10 @@
 #pragma once
+#include <iostream>
 #include <set>
-#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
+
 namespace Median {
     class Median {
     public:
@@ -9,13 +13,24 @@ namespace Median {
         void addNumber(double num) {
             calcMedian(num);
         }
-        void printMedian() const {
-            std::cout << this->median << std::endl;
+        double printMedian() const {
+            std::cout << "Median is: "<< this->median << std::endl;
+            return this->median;
+        }
+
+        void autoTest() {
+            autoTestMedian();
         }
     private:
         double median;
         std::multiset<double> data;
         std::multiset<double>::iterator left, right;
+
+        void clearLastMedian() {
+            if (!this->data.empty()) {
+                this->data.clear();
+            }
+        }
 
         void calcMedian(double num){
             // insert number
@@ -44,6 +59,42 @@ namespace Median {
                 }
             }
             this->median = (double)(*left + *right) / 2;
+        }
+
+        void autoTestMedian() {
+            std::string s;
+            double num;
+            int lineCounter = 0;
+            std::ifstream myFile;
+            // open file and run tests
+            myFile.open("test.txt");
+            if (!myFile) {
+                std::cout << "File not created!";
+            }
+            else {
+                //Read every line and parse
+                while (std::getline(myFile, s)) {
+                    std::istringstream lineIn(s);
+                    std::cout << "readed nunmbers: " << s << std::endl;
+                    while (lineIn >> num) {
+                        if (lineCounter % 2 == 0) {
+                            addNumber(num);
+                        }
+                        else {
+                            if (num == printMedian()) {
+                                std::cout << "true" << std::endl;
+                                clearLastMedian();
+                            }
+                            else {
+                                std::cout << "false" << " correct answer is " << num << std::endl;
+                                clearLastMedian();
+                            }
+                        }
+                    }
+                    lineCounter++;
+                }
+                myFile.close();
+            }
         }
     };
 } // namespase Median
